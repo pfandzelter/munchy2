@@ -143,12 +143,18 @@ resource "aws_lambda_permission" "munchy-cloudwatch-dst" {
 resource "aws_dynamodb_table" "go-eat-table" {
   name           = var.table_name
   hash_key       = "date"
+  range_key      = "canteen"
   billing_mode   = "PROVISIONED"
   write_capacity = 1
   read_capacity  = 1
 
   attribute {
     name = "date"
+    type = "S"
+  }
+
+  attribute {
+    name = "canteen"
     type = "S"
   }
 }
