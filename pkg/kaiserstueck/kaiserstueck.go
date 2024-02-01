@@ -9,7 +9,7 @@ import (
 	"github.com/pfandzelter/munchy2/pkg/food"
 )
 
-const price = 670
+const price = 890
 
 type kaiserstk struct{}
 

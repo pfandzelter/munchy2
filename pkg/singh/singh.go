@@ -13,7 +13,7 @@ import (
 
 type singh struct{}
 
-// New creates a new service to pull the menu from Personalkantine.
+// New creates a new service to pull the menu from Mathe Cafe.
 func New() *singh {
 	return &singh{}
 }
@@ -53,7 +53,8 @@ func (m *singh) GetFood(t time.Time) ([]food.Food, error) {
 		return nil, err
 	}
 
-	doc.Find(".entry-content").Each(func(i int, s *goquery.Selection) {
+	doc.Find(".content_wrapper.clearfix").Each(func(i int, s *goquery.Selection) {
+		// println(s.Text())
 		s.Find(".wrap.mcb-wrap.one-second.valign-top.clearfix").Each(func(i int, m *goquery.Selection) {
 
 			// if the name of the day does not appear, we have the wrong menu
@@ -61,11 +62,13 @@ func (m *singh) GetFood(t time.Time) ([]food.Food, error) {
 				// log.Printf("%s is not in %s", date, m.Text())
 				return
 			}
+			// print("have something")
 
 			var nextVeg bool
 			var nextVgn bool
 			for curr := m.Find(".column.mcb-column.one.column_column.column-margin-").First(); len(curr.Nodes) != 0; curr = curr.Next() {
 				name := curr.Text()
+				// println(name)
 				name = strings.Replace(name, "\n", " ", -1)
 
 				if strings.Contains(name, date) {

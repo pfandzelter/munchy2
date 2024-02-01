@@ -26,7 +26,8 @@ func testCanteen(name string, specDiet bool, c mensa) error {
 		return fmt.Errorf("No food found for %s", name)
 	}
 
-	log.Printf("%s: %+v\n", name, fl)
+	fmt.Printf("Found %d items for %s", len(fl), name)
+	fmt.Printf("%s: %+v\n", name, fl)
 	return nil
 }
 
