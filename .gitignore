@@ -11,6 +11,8 @@ init.done
 deploy
 plan
 
+test.log
+
 # Created by https://www.gitignore.io/api/go,macos,terraform,intellij+all
 # Edit at https://www.gitignore.io/?templates=go,macos,terraform,intellij+all
 

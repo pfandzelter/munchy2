@@ -1,6 +1,6 @@
 ROOT=github.com/pfandzelter/munchy2
 
-.PHONY: deploy plan clean
+.PHONY: deploy plan clean test
 
 deploy: go-eat.zip munchy.zip main.tf init.done
 	terraform apply
@@ -35,3 +35,7 @@ munchy: cmd/ pkg/
 clean:
 	terraform destroy
 	rm -f init.done deploy.done go-eat.zip go-eat munchy.zip munchy
+
+test:
+	rm test.log || true
+	go test -v ./...

@@ -24,7 +24,7 @@ variable "table_name" {
 variable "lambda_timeout" {
   type        = number
   description = "Timeout for Lambda execution in seconds."
-  default     = 10
+  default     = 60
 }
 
 variable "lambda_memory_size" {

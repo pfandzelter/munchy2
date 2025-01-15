@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"testing"
 	"time"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/pfandzelter/munchy2/pkg/singh"
 	"github.com/pfandzelter/munchy2/pkg/stw"
 )
+
+const testLog string = "test.log"
 
 func testCanteen(name string, specDiet bool, c mensa) error {
 
@@ -26,8 +29,17 @@ func testCanteen(name string, specDiet bool, c mensa) error {
 		return fmt.Errorf("No food found for %s", name)
 	}
 
-	fmt.Printf("Found %d items for %s", len(fl), name)
-	fmt.Printf("%s: %+v\n", name, fl)
+	// append output to test.log
+	f, err := os.OpenFile(testLog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	defer f.Close()
+
+	fmt.Fprintf(f, "Found %d items for %s", len(fl), name)
+	fmt.Fprintf(f, "%s: %+v\n", name, fl)
 	return nil
 }
 

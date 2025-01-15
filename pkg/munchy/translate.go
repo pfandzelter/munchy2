@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/pfandzelter/munchy2/pkg/dynamo"
 )
@@ -39,6 +41,10 @@ func (t *translator) translate(name string) (string, error) {
 		return "", err
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("error translating %s: %s", name, resp.Status)
+	}
+
 	defer resp.Body.Close()
 
 	s := struct {
@@ -47,9 +53,16 @@ func (t *translator) translate(name string) (string, error) {
 		} `json:"translations"`
 	}{}
 
-	err = json.NewDecoder(resp.Body).Decode(&s)
+	b, err := io.ReadAll(resp.Body)
 
 	if err != nil {
+		return "", err
+	}
+
+	err = json.Unmarshal(b, &s)
+
+	if err != nil {
+		log.Printf("error unmarshalling %s: %v", string(b), err)
 		return "", err
 	}
 
@@ -74,12 +87,15 @@ func TranslateFood(f []dynamo.DBEntry, deepLSourceLang string, deepLTargetLang s
 			name, err := t.translate(item.Name)
 
 			if err != nil {
+				log.Printf("error translating %s: %v", item.Name, err)
 				return nil, err
 			}
 
 			f[i].Items[j].Name = name
 
 			log.Printf("translated %s to %s", item.Name, name)
+
+			time.Sleep(500 * time.Millisecond)
 		}
 	}
 

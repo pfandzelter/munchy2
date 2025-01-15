@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -46,13 +46,13 @@ func HandleRequest(ctx context.Context, event events.CloudWatchEvent) {
 	f, err := dynamo.GetFood(awsRegion, awsTable)
 
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error getting food from DynamoDB: %v", err)
 	}
 
 	f, err = munchy.TranslateFood(f, deepLSourceLang, deepLTargetLang, deepLURL, deepLKey)
 
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error translating food: %v", err)
 	}
 
 	msg := ""
@@ -64,7 +64,7 @@ func HandleRequest(ctx context.Context, event events.CloudWatchEvent) {
 	req, err := http.NewRequest("POST", webhookURL, bytes.NewBuffer(jsonStr))
 
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error creating request: %v", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -73,15 +73,15 @@ func HandleRequest(ctx context.Context, event events.CloudWatchEvent) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error sending request: %v", err)
 	}
 
 	defer resp.Body.Close()
 
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error reading response: %v", err)
 	}
 
 	log.Printf("sending %s to %s, got %d: %s", msg, webhookURL, resp.StatusCode, string(data))
