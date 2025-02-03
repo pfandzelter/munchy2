@@ -46,7 +46,7 @@ func (m *kaiserstk) GetFood(t time.Time) ([]food.Food, error) {
 				return
 			}
 
-			veg := strings.Contains(name, "veg.")
+			veg := strings.Contains(name, "veg.") || strings.Contains(name, "Veggie")
 
 			foodstuff[name] = food.Food{
 				Name:       name,

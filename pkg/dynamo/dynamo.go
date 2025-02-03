@@ -86,27 +86,27 @@ func GetFood(region string, table string) ([]DBEntry, error) {
 
 	date := time.Now().Format("2006-01-02")
 
-	filt := expression.Name("date").Equal(expression.Value(date))
+	keyCond := expression.Key("date").Equal(expression.Value(date))
 
 	proj := expression.NamesList(expression.Name("canteen"), expression.Name("date"), expression.Name("spec_diet"), expression.Name("items"))
 
-	expr, err := expression.NewBuilder().WithFilter(filt).WithProjection(proj).Build()
+	expr, err := expression.NewBuilder().WithKeyCondition(keyCond).WithProjection(proj).Build()
 
 	if err != nil {
 		return nil, err
 	}
 
 	// Build the query input parameters
-	params := &dynamodb.ScanInput{
+	params := &dynamodb.QueryInput{
+		TableName:                 aws.String(table),
+		KeyConditionExpression:    expr.KeyCondition(),
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
-		FilterExpression:          expr.Filter(),
 		ProjectionExpression:      expr.Projection(),
-		TableName:                 aws.String(table),
 	}
 
 	// Make the DynamoDB Query API call
-	result, err := svc.Scan(params)
+	result, err := svc.Query(params)
 
 	if err != nil {
 		return nil, err

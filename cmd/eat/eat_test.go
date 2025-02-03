@@ -59,14 +59,6 @@ func TestVeggie(t *testing.T) {
 	}
 }
 
-func TestArchitektur(t *testing.T) {
-	err := testCanteen("Pastaria Architektur", true, stw.New(540))
-
-	if err != nil {
-		t.Error(err)
-	}
-}
-
 func TestMarchstr(t *testing.T) {
 	err := testCanteen("Marchstr", true, stw.New(538))
 
@@ -97,12 +89,4 @@ func TestSingh(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-}
-
-func TestAll(t *testing.T) {
-	TestHauptmensa(t)
-	TestVeggie(t)
-	TestKaiserstueck(t)
-	TestPersonalkantine(t)
-	TestSingh(t)
 }

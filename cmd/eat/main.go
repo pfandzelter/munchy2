@@ -93,9 +93,10 @@ func HandleRequest(event events.CloudWatchEvent) {
 	for c, m := range canteens {
 		fl, err := m.GetFood(t)
 		if err != nil {
-			log.Print(err)
+			log.Printf("Error getting food for %s: %s", c.Name, err)
 			continue
 		}
+		log.Printf("Got %d items for %s", len(fl), c.Name)
 		foodlists[c] = fl
 	}
 

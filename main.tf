@@ -82,7 +82,7 @@ resource "aws_iam_policy" "munchy-dynamo" {
     {
       "Sid": "Stmt1582485790003",
       "Action": [
-        "dynamodb:Scan"
+        "dynamodb:Query"
       ],
       "Effect": "Allow",
       "Resource": "arn:aws:dynamodb:*:*:*"
