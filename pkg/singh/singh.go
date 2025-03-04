@@ -66,9 +66,13 @@ func (m *singh) GetFood(t time.Time) ([]food.Food, error) {
 
 			var nextVeg bool
 			var nextVgn bool
-			for curr := m.Find(".column.mcb-column.one.column_column.column-margin-").First(); len(curr.Nodes) != 0; curr = curr.Next() {
+
+			items := m.Find(".column.mcb-column.one.column_column.column-margin-")
+
+			for c := range items.Nodes {
+				curr := items.Eq(c)
 				name := curr.Text()
-				// println(name)
+				println(name)
 				name = strings.Replace(name, "\n", " ", -1)
 
 				if strings.Contains(name, date) {
@@ -127,6 +131,21 @@ func (m *singh) GetFood(t time.Time) ([]food.Food, error) {
 			}
 		})
 	})
+
+	// remove vegetarian and vegan chicken... thanks, Mathe Cafe
+	for k, v := range foodstuff {
+		if strings.Contains(k, "Hähnchen") {
+			v.Vegetarian = false
+			v.Vegan = false
+			foodstuff[k] = v
+		}
+
+		if strings.Contains(k, "SAMOSA") {
+			v.Vegetarian = true
+			v.Vegan = true
+			foodstuff[k] = v
+		}
+	}
 
 	// return stuff
 	foodlist := make([]food.Food, len(foodstuff))

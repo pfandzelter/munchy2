@@ -25,30 +25,9 @@ type Canteen struct {
 	SpecDiet bool
 }
 
-// HandleRequest handles one request to the lambda function.
-func HandleRequest(event events.CloudWatchEvent) {
+type putFoodFunc func(c string, specdiet bool, f []food.Food, t time.Time) error
 
-	timezone := os.Getenv("MENSA_TIMEZONE")
-
-	tz, err := time.LoadLocation(timezone)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// see if this event was triggered by the DST eventbridge rule
-	if strings.Contains(event.Resources[0], "dst") != time.Now().In(tz).IsDST() {
-		return
-	}
-
-	tablename := os.Getenv("DYNAMODB_TABLE")
-	region := os.Getenv("DYNAMODB_REGION")
-
-	db, err := dynamo.New(region, tablename)
-
-	if err != nil {
-		log.Fatal(err)
-	}
+func getFood(pff putFoodFunc) {
 
 	type Canteen struct {
 		Name     string
@@ -101,14 +80,55 @@ func HandleRequest(event events.CloudWatchEvent) {
 	}
 
 	for c, f := range foodlists {
-		err := db.PutFood(c.Name, c.SpecDiet, f, t)
+		err := pff(c.Name, c.SpecDiet, f, t)
 		if err != nil {
 			log.Print(err)
 		}
 	}
+}
 
+// HandleRequest handles one request to the lambda function.
+func HandleRequest(event events.CloudWatchEvent) {
+
+	timezone := os.Getenv("MENSA_TIMEZONE")
+
+	tz, err := time.LoadLocation(timezone)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// see if this event was triggered by the DST eventbridge rule
+	if strings.Contains(event.Resources[0], "dst") != time.Now().In(tz).IsDST() {
+		return
+	}
+
+	tablename := os.Getenv("DYNAMODB_TABLE")
+	region := os.Getenv("DYNAMODB_REGION")
+
+	db, err := dynamo.New(region, tablename)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	getFood(db.PutFood)
 }
 
 func main() {
+	if _, ok := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); !ok {
+		// development mode
+		getFood(func(c string, specdiet bool, f []food.Food, t time.Time) error {
+			log.Printf("Found %d items for %s", len(f), c)
+			for _, food := range f {
+				log.Printf("%+v\n", food.String())
+			}
+			return nil
+		})
+
+		return
+	}
+
+	// run the lambda function
 	lambda.Start(HandleRequest)
 }

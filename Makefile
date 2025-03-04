@@ -1,4 +1,5 @@
 ROOT=github.com/pfandzelter/munchy2
+GOFILES=$(shell find . -name "*.go")
 
 .PHONY: deploy plan clean test
 
@@ -24,11 +25,15 @@ munchy.zip: munchy
 	chmod +x munchy
 	zip -j $@ $<
 
-go-eat: cmd/ pkg/
+go-eat: ${GOFILES}
 	go get ${ROOT}/cmd/eat
 	GOOS=linux GOARCH=amd64 go build -ldflags="-d -s -w" -o $@ ${ROOT}/cmd/eat
 
-munchy: cmd/ pkg/
+dev-eat: ${GOFILES}
+	go get ${ROOT}/cmd/eat
+	go build -o $@ ${ROOT}/cmd/eat
+
+munchy: ${GOFILES}
 	go get ${ROOT}/cmd/munchy
 	GOOS=linux GOARCH=amd64 go build -ldflags="-d -s -w" -o $@ ${ROOT}/cmd/munchy
 
